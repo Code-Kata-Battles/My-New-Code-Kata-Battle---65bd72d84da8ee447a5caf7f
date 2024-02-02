@@ -1,0 +1,25 @@
+name: tester-ckb
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Create ZIP deployment package
+        run: zip -r repo_package.zip ./
+
+      - name: Score Repository
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: 'https://ckb-app.onrender.com/team/score'
+          method: 'POST'
+          data: '{ "repository": "${{ github.server_url }}/${{ github.repository }}", "commit": "${{ github.sha }}" }'
+          files: '{ "file": "./repo_package.zip" }'
+          username: ${{ secrets.TEAM_ID }}
+          password: ${{ secrets.TEAM_SECRET }}
+          timeout: 10000
